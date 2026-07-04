@@ -21,6 +21,39 @@ model = joblib.load("models/demand_forecasting_model (4).pkl")
 # ---------------------------
 
 st.title("📈 Retail Demand Forecasting Dashboard")
+# ==========================
+# KPI CARDS
+# ==========================
+
+st.markdown("---")
+
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    st.metric(
+        label="📦 Model",
+        value="Random Forest"
+    )
+
+with col2:
+    st.metric(
+        label="🎯 Accuracy (R²)",
+        value="92.50%"
+    )
+
+with col3:
+    st.metric(
+        label="📉 MAE",
+        value="26.69"
+    )
+
+with col4:
+    st.metric(
+        label="📈 RMSE",
+        value="56.58"
+    )
+
+st.markdown("---")
 
 st.markdown("---")
 
@@ -131,12 +164,13 @@ with col2:
         value=150.0
     )
     # --------------------------------
+# --------------------------------
 # Prediction
 # --------------------------------
 
 if st.button("🔮 Predict Demand"):
-    st.write("Button Clicked!")
 
+    # Create input dataframe
     input_data = pd.DataFrame({
         'Product_ID': [product_id],
         'Year': [year],
@@ -149,56 +183,46 @@ if st.button("🔮 Predict Demand"):
         'Average_Product_Sales': [average_sales]
     })
 
-    prediction = model.predict(input_data)
+    # Make prediction
+    prediction = model.predict(input_data)[0]
 
+    # Show success message
     st.success("Prediction Completed Successfully! ✅")
 
+    # Display predicted demand
     st.metric(
-        label="📦 Predicted Demand (Quantity)",
-        value=f"{prediction[0]:.2f}"
+        label="📦 Predicted Demand",
+        value=f"{prediction:.2f} Units"
     )
 
+    # Demand Status
+    if prediction < 100:
+        st.error("🔴 Low Demand Expected")
+
+    elif prediction < 250:
+        st.warning("🟡 Moderate Demand Expected")
+
+    else:
+        st.success("🟢 High Demand Expected")
+
+    # Balloons animation
     st.balloons()
 
-     # ---------------------------
+    # ---------------------------
     # Business Insight
     # ---------------------------
+
     st.markdown("---")
     st.subheader("💡 Business Insight")
 
-    pred = prediction[0]
+    if prediction >= 200:
+        st.success("🔥 High Demand Expected. Increase inventory to avoid stock-outs.")
 
-    if pred >= 200:
-        st.success("🔥 High Demand Expected. Maintain sufficient inventory.")
-
-    elif pred >= 100:
+    elif prediction >= 100:
         st.info("📦 Moderate Demand Expected. Current inventory should be sufficient.")
 
     else:
-        st.warning("⚠️ Low Demand Expected. Avoid overstocking.")
-    # --------------------------------
-# Model Information
-# --------------------------------
-
-st.markdown("---")
-
-st.subheader("📊 Model Performance")
-
-c1, c2, c3, c4 = st.columns(4)
-
-with c1:
-    st.metric("🤖 Model", "Random Forest")
-
-with c2:
-    st.metric("🎯 MAE", "26.69")
-
-with c3:
-    st.metric("📉 RMSE", "56.58")
-
-with c4:
-    st.metric("📈 R² Score", "92.50%")
-
-
+        st.warning("⚠️ Low Demand Expected. Avoid overstocking to reduce holding costs.")
 
 # --------------------------------
 # Footer

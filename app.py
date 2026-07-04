@@ -135,6 +135,7 @@ with col2:
 # --------------------------------
 
 if st.button("🔮 Predict Demand"):
+    st.write("Button Clicked!")
 
     input_data = pd.DataFrame({
         'Product_ID': [product_id],
